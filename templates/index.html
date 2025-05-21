@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cardio Disease Prediction</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.7s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        select {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            width: 100%;
+            background: #fff;
+            color: #333;
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            outline: none;
+        }
+
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            outline: none;
+        }
+
+        input[type="submit"] {
+            background: #3498db;
+            color: #fff;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background: #2980b9;
+        }
+
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #27ae60;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+        }
+    </style>
+    <script>
+        function validateForm() {
+            const inputs = document.querySelectorAll('input[type="text"]');
+            for (let input of inputs) {
+                if (isNaN(input.value) || input.value.trim() === '') {
+                    alert(`Please enter a valid number for "${input.name.replace('_', ' ')}".`);
+                    input.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1> Cardio Disease Prediction</h1>
+
+        <form method="post" onsubmit="return validateForm();">
+            {% for feature in features %}
+                <label for="{{ feature }}">
+                    {% if feature == 'ap_hi' %}
+                        Systolic BP
+                    {% elif feature == 'ap_lo' %}
+                        Diastolic BP
+                    {% elif feature == 'gluc' %}
+                        Glucose
+                    {% elif feature == 'alco' %}
+                        Alcohol
+                    {% else %}
+                        {{ feature.replace('_', ' ').title() }}
+                    {% endif %}
+                </label>
+
+                {% if feature == 'gender' %}
+                    <select name="{{ feature }}" id="{{ feature }}" required>
+                        <option value="">-- Select Gender --</option>
+                        <option value="1">Male</option>
+                        <option value="2">Female</option>
+                    </select>
+
+                {% elif feature == 'cholesterol' %}
+                    <select name="{{ feature }}" id="{{ feature }}" required>
+                        <option value="">-- Select Cholesterol Level --</option>
+                        <option value="1">Normal</option>
+                        <option value="2">Above Normal</option>
+                        <option value="3">Well Above Normal</option>
+                    </select>
+
+                {% elif feature == 'gluc' %}
+                    <select name="{{ feature }}" id="{{ feature }}" required>
+                        <option value="">-- Select Glucose Level --</option>
+                        <option value="1">Normal</option>
+                        <option value="2">Above Normal</option>
+                        <option value="3">Well Above Normal</option>
+                    </select>
+
+                {% elif feature == 'alco' %}
+                    <select name="{{ feature }}" id="{{ feature }}" required>
+                        <option value="">-- Select Alcohol Consumption --</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+
+                {% elif feature == 'smoke' %}
+                    <select name="{{ feature }}" id="{{ feature }}" required>
+                        <option value="">-- Select Smoking Status --</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+
+                {% elif feature == 'active' %}
+                    <select name="{{ feature }}" id="{{ feature }}" required>
+                        <option value="">-- Select Physical Activity --</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                
+                {% else %}
+                    <input type="text" name="{{ feature }}" id="{{ feature }}"  placeholder="{% if feature == 'ap_hi' %}Enter Systolic BP{% elif feature == 'ap_lo' %}Enter Diastolic BP{% else %}Enter {{ feature.replace('_', ' ')}}{% endif %}" required>
+                {% endif %}
+
+            {% endfor %}
+            <input type="submit" value="🔍 Predict">
+        </form>
+
+        {% if prediction %}
+            <div class="result success">✅ Prediction: {{ prediction }}</div>
+        {% endif %}
+
+        {% if error %}
+            <div class="result error">❌ Error: {{ error }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
