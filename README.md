@@ -2,12 +2,6 @@
 
 This project uses multiple ML algorithms to predict cardiovascular disease.
 
-## Models Included
-- Logistic Regression
-- Decision Tree
-- Support Vector Machine (SVC)
-- Random Forest
-
 ## Steps
 
 1. Place your dataset as `data/cardio_data.csv`  
