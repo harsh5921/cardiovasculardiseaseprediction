@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediction Result</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            color: #333;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.7s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            color: #16a085;
+            margin-bottom: 20px;
+        }
+
+        .prediction {
+            font-size: 1.3em;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f1f1;
+            color: #2c3e50;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f0faff;
+        }
+
+        .back-btn {
+            display: block;
+            margin: 0 auto;
+            text-align: center;
+            padding: 10px 20px;
+            background-color: #16a085;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background-color: #138d75;
+        }
+
+        .share-btn {
+            display: inline-block;
+            padding: 12px 18px;
+            margin: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .share-btn:hover {
+            background-color: #2c80b4;
+    }
+
+    </style>
+</head>
+<script>
+    function shareResult() {
+        const prediction = "{{ prediction }}";
+        const url = window.location.href;
+        const message = `🩺 Cardio Disease Prediction Result:\nResult: ${prediction}\nCheck it here: ${url}`;
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'Cardio Disease Prediction Result',
+                text: message,
+                url: url
+            })
+            .then(() => console.log('Result shared successfully.'))
+            .catch((error) => {
+                document.getElementById("share-error").innerText = "❌ Sharing failed or was cancelled.";
+                console.error('Error sharing:', error);
+            });
+        } else {
+            document.getElementById("share-error").innerText = "❌ Your browser doesn't support native sharing.";
+        }
+    }
+</script>
+
+<body>
+    <div class="container">
+        <h1>Prediction Result</h1>
+
+        <div class="prediction">
+            ✅ Prediction: {{ prediction }}
+        </div>
+
+        <h2>User Input Summary</h2>
+        <table>
+            <tr>
+                <th>Feature</th>
+                <th>Value</th>
+            </tr>
+            {% for key, value in user_data.items() %}
+                <tr>
+                    <td>
+                        {% if key == 'ap_hi' %}
+                            Systolic BP
+                        {% elif key == 'ap_lo' %}
+                            Diastolic BP
+                        {% elif key == 'gluc' %}
+                            Glucose
+                        {% elif key == 'alco' %}
+                            Alcohol
+                        {% elif key == 'smoke' %}
+                            Smoking
+                        {% elif key == 'active' %}
+                            Physical Activity
+                        {% elif key == 'height' %}
+                            Height (cm)
+                        {% elif key == 'weight' %}
+                            Weight (kg)
+                        {% else %}
+                            {{ key.replace('_', ' ').title() }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if key in ['smoke', 'alco', 'active'] %}
+                            {{ 'Yes' if value == 1 else 'No' }}
+                        {% elif key == 'gender' %}
+                            {{ 'Male' if value == 1 else 'Female' }}
+                        {% elif key == 'cholesterol' %}
+                            {% if value == 1 %}Normal{% elif value == 2 %}Above Normal{% else %}Well Above Normal{% endif %}
+                        {% elif key == 'gluc' %}
+                            {% if value == 1 %}Normal{% elif value == 2 %}Above Normal{% else %}Well Above Normal{% endif %}
+                        {% else %}
+                            {{ value|int }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div style="text-align:center; margin: 30px 0;">
+            <a href="javascript:void(0);" onclick="shareResult()" class="back-btn">📤 Share Result</a>
+            <p id="share-error" style="color: red; margin-top: 10px;"></p>
+        </div>
+        <a href="{{ url_for('home') }}" class="back-btn">🔙 Go Back</a>
+    </div>
+</body>
+</html>
